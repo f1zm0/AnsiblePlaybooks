@@ -12,6 +12,7 @@
     is_virtualbox_installation: true
 
   roles:
-    - common
+    - base
     - sectools
+    - rice
 

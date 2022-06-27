@@ -1,9 +1,119 @@
 ---
 
+- name: Install i3-gaps
+  pacman:
+    name: "{{ item }}"
+    state: present
+  with_items: 
+    - i3-gaps
+    - xorg
+    - xorg-xinit
+    - xterm
+  tags: i3, i3-gaps, wm
+
+- name: Install terminal emulator
+  pacman:
+    name: kitty
+    state: present
+  tags: terminal
+
+- name: Install colorscheme packages
+  pacman:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - feh
+    - imagemagick
+    - python-pywal
+  tags: terminal, colorschemes
+
+- name: Install w3m
+  pacman:
+    name: w3m
+    state: latest
+  tags: w3m, terminal
+
+- name: Install status bar
+  pacman:
+    name: polybar
+    state: present
+  tags: polybar, status-bar
+
+- name: Install app launcher
+  pacman:
+    name: rofi
+    state: present
+  tags: rofi, launcher
+
+- name: Install file browser
+  pacman:
+    name: ranger
+    state: present
+  tags: file-browser
+
 - name: Install nerd fonts from AUR
+  become: true
+  become_user: "{{ username }}"
   command: "yay --noconfirm --needed -S {{ package }}"
   with_items: "{{ aur_font_packages | default(aur_font_packages) }}"
   loop_control:
     loop_var: package
   tags: fonts, nerd-fonts
+
+- name: Install icon theme
+  pacman:
+    name: papirus-icon-theme
+    state: present
+  tags: icons
+
+- name: Create config directories
+  become: true
+  become_user: "{{ username }}"
+  file:
+    path: "{{ item.path }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0755"
+  with_items:
+    - { path: "{{ home_dir }}/.config/i3" }
+    - { path: "{{ home_dir }}/.config/polybar" }
+    - { path: "{{ home_dir }}/.config/kitty" }
+  tags: dotfiles
+
+- name: Copy wallpaper file
+  copy:
+    src: wal.jpg
+    dest: "{{ home_dir }}/Pictures/wal.jpg"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0640"
+    force: true
+  tags: wallpaper
+
+- name: Link dotfiles
+  become: true
+  become_user: "{{ username }}"
+  file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+    force: yes
+    state: link
+  with_items:
+    - { src: "{{ dotfiles_dir }}/xorg/xinitrc", dest: "{{ home_dir }}/.xinitrc" }
+    - { src: "{{ dotfiles_dir }}/xorg/Xresources", dest: "{{ home_dir }}/.Xresources" }
+    - { src: "{{ dotfiles_dir }}/i3/config", dest: "{{ home_dir }}/.config/i3/config" }
+    - { src: "{{ dotfiles_dir }}/polybar/config", dest: "{{ home_dir }}/.config/polybar/config" }
+    - { src: "{{ dotfiles_dir }}/polybar/launch.sh", dest: "{{ home_dir }}/.config/polybar/launch.sh" }
+    - { src: "{{ dotfiles_dir }}/kitty/kitty.conf", dest: "{{ home_dir }}/.config/kitty/kitty.conf" }
+  tags: dotfiles
+
+- name: Change +x permissions to launcher scripts
+  file:
+    dest: "{{ home_dir }}/.config/polybar/launch.sh"
+    mode: a+x
+  tags: dotfiles, polybar
 
