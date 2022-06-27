@@ -1,0 +1,32 @@
+---
+
+core_packages:
+  - base-devel
+  - sudo
+  - p7zip
+  - tmux
+  - git
+  - make
+  - lsd
+  - fd
+  - fzf
+
+ohmyzsh_default_theme: robbyrussell
+ohmyzsh_default_plugins:
+  - git
+
+ohmyzsh_custom_plugins:
+  - name: zsh-syntax-highlighting
+    repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
+    update: no
+    version: master
+  - name: zsh-autosuggestions
+    repo: https://github.com/zsh-users/zsh-autosuggestions.git
+    update: no
+    version: master
+
+ohmyzsh_custom_themes:
+  - name: powerlevel10k
+    repo: https://github.com/romkatv/powerlevel10k
+    update: no
+    version: master

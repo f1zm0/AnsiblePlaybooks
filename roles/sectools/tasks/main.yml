@@ -1,0 +1,20 @@
+---
+
+- name: Install networking tools 
+  become: true
+  pacman:
+    name: "{{ package }}"
+  with_items: "{{ networking_tools | default(networking_tools) }}"
+  loop_control:
+    loop_var: package
+    label: "{{ package }}"
+
+- name: Install security tools 
+  become: true
+  pacman:
+    name: "{{ package }}"
+  with_items: "{{ security_tools | default(security_tools) }}"
+  loop_control:
+    loop_var: package
+    label: "{{ package }}"
+

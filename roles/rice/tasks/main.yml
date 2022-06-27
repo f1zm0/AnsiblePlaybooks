@@ -1,0 +1,9 @@
+---
+
+- name: Install nerd fonts from AUR
+  command: "yay --noconfirm --needed -S {{ package }}"
+  with_items: "{{ aur_font_packages | default(aur_font_packages) }}"
+  loop_control:
+    loop_var: package
+  tags: fonts, nerd-fonts
+

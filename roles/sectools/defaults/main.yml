@@ -1,0 +1,12 @@
+---
+
+networking_tools:
+  - net-tools
+  - tcpdump
+  - ufw
+
+security_tools:
+  - nmap
+  - termshark
+
+
