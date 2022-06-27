@@ -7,6 +7,8 @@ core_packages:
   - tmux
   - git
   - make
+  - tree
+  - bat
   - lsd
   - fd
   - fzf

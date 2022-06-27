@@ -10,6 +10,7 @@
   become: true
   pacman:
     name: "{{ package }}"
+    state: present
   with_items: "{{ core_packages | default(core_packages) }}"
   loop_control:
     loop_var: package
