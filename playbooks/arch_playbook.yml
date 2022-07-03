@@ -1,0 +1,19 @@
+---
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    username: f1zm0
+    home_dir: "/home/{{ username }}"
+    dotfiles_dir: "{{ home_dir}}/dotfiles"
+    dotfiles_repo_url: https://github.com/f1zm0/dotfiles
+    dotfiles_repo_branch: dev
+    is_virtualbox_installation: true
+
+  roles:
+    - base
+    - tools
+    - rice
+
