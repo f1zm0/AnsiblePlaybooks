@@ -3,6 +3,8 @@
 core_packages:
   - base-devel
   - sudo
+  - python
+  - python-pip
   - p7zip
   - tmux
   - git
@@ -11,6 +13,7 @@ core_packages:
   - bat
   - lsd
   - fd
+  - ripgrep
   - fzf
 
 ohmyzsh_default_theme: robbyrussell
