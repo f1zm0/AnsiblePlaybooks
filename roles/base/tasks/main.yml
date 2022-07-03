@@ -42,7 +42,6 @@
   tags: yay
 
 - name: "Build yay"
-  become: true
   become_user: "{{ username }}"
   when: not yaybin.stat.exists
   command: makepkg --noconfirm -si
@@ -65,23 +64,22 @@
   tags: virtualbox
 
 - name: Clone dotfiles repo
-  become: true
   become_user: "{{ username }}"
   git:
-    repo: "{{ dotfiles_repo }}"
+    repo: "{{ dotfiles_repo_url }}"
+    version: "{{ dotfiles_repo_branch }}"
     dest: "{{ dotfiles_dir }}"
     force: yes
   tags: dotfiles
 
-- name: Create config directories
-  become: true
+- name: Create directories for config files
   become_user: "{{ username }}"
   file:
     path: "{{ item.path }}"
     state: directory
     owner: "{{ username }}"
     group: "{{ username }}"
-    mode: "0755"
+    mode: "0644"
   with_items:
     - { path: "{{ home_dir }}/.config" }
     - { path: "{{ home_dir }}/.config/nvim" }
@@ -98,7 +96,6 @@
     shell: /usr/bin/zsh
 
 - name: install oh-my-zsh
-  become: true
   become_user: "{{ username }}"
   git:
     repo: "https://github.com/robbyrussell/oh-my-zsh"
@@ -108,7 +105,6 @@
   tags: zsh, omz, oh-my-zsh
 
 - name: install plugins
-  become: true
   become_user: "{{ username }}"
   git:
     repo: "{{ plugin.repo }}"
@@ -121,7 +117,6 @@
   tags: zsh, omz, oh-my-zsh
 
 - name: Install Powerlevel10k theme
-  become: true
   become_user: "{{ username }}"
   git:
     repo: https://github.com/romkatv/powerlevel10k
@@ -135,20 +130,20 @@
   pacman:
     name: neovim
     state: present
-  tags: neovim, nvim
+  tags: neovim
 
 - name: Install Plug to manage neovim packages
-  become: true
   become_user: "{{ username }}"
   shell: |
     sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+  tags: neovim
 
 - name: Install neovim packages
-  become: true
   become_user: "{{ username }}"
   command: |
     "nvim --headless -E -s -c 'source {{ home_dir }}/.config/nvim/init.vim' +PlugInstall +qa"
   ignore_errors: true
+  tags: neovim
 
 - name: Link dotfiles
   file:
