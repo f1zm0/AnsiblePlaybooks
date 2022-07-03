@@ -1,15 +1,29 @@
 ---
 
-- name: Install i3-gaps
+- name: Install X packages
   pacman:
     name: "{{ item }}"
     state: present
   with_items: 
-    - i3-gaps
     - xorg
     - xorg-xinit
-    - xterm
-  tags: i3, i3-gaps, wm
+  tags: xorg
+
+- name: Install window manager
+  vars: 
+    - wm: "{{ window_manager | default(window_manager) }}"
+  pacman:
+    name : "{{ wm }}"
+    state: present
+  tags: window-manager, wm
+
+- name: Install extra packages for window manager
+  pacman:
+    name: "{{ item }}"
+    state: present
+  with_items: "{{ window_manager_extras | default(window_manager_extras) }}"
+  when: window_manager_extras  != "" or default(window_manager) != ""
+  tags: window-manager, wm
 
 - name: Install terminal emulator
   pacman:
@@ -17,21 +31,15 @@
     state: present
   tags: terminal
 
-- name: Install colorscheme packages
+- name: Install pywal
   pacman:
     name: "{{ item }}"
     state: present
   with_items:
+    - python-pywal
     - feh
     - imagemagick
-    - python-pywal
   tags: terminal, colorschemes
-
-- name: Install w3m
-  pacman:
-    name: w3m
-    state: latest
-  tags: w3m, terminal
 
 - name: Install status bar
   pacman:
@@ -45,14 +53,27 @@
     state: present
   tags: rofi, launcher
 
-- name: Install file browser
+- name: install notification daemon
   pacman:
-    name: ranger
+    name: dunst
     state: present
-  tags: file-browser
+  tags: notifications, dunst
+
+- name: Install picom compositor from AUR
+  become_user: "{{ username }}"
+  command: "yay --noconfirm -S picom-git" 
+  tags: picom, compositor 
+
+- name: Install ranger file browser
+  pacman:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - ranger
+    - ueberzug
+  tags: file-browser, ranger
 
 - name: Install nerd fonts from AUR
-  become: true
   become_user: "{{ username }}"
   command: "yay --noconfirm --needed -S {{ package }}"
   with_items: "{{ aur_font_packages | default(aur_font_packages) }}"
@@ -67,7 +88,6 @@
   tags: icons
 
 - name: Create config directories
-  become: true
   become_user: "{{ username }}"
   file:
     path: "{{ item.path }}"
@@ -76,23 +96,66 @@
     group: "{{ username }}"
     mode: "0755"
   with_items:
-    - { path: "{{ home_dir }}/.config/i3" }
+    - { path: "{{ home_dir }}/.config/{{ window_manager | default(window_manager) }}" }
     - { path: "{{ home_dir }}/.config/polybar" }
     - { path: "{{ home_dir }}/.config/kitty" }
+    - { path: "{{ home_dir }}/.config/picom" }
+    - { path: "{{ home_dir }}/.config/ranger" }
+    - { path: "{{ home_dir }}/.config/neofetch" }
   tags: dotfiles
 
-- name: Copy wallpaper file
-  copy:
-    src: wal.jpg
-    dest: "{{ home_dir }}/Pictures/wal.jpg"
+- name: Create local directory for fonts
+  become_user: "{{ username }}"
+  file:
+    path: "{{ home_dir }}/.local/share/fonts"
+    state: directory
     owner: "{{ username }}"
     group: "{{ username }}"
-    mode: "0640"
-    force: true
+    mode: "0744"
+  tags: fonts, icons
+
+- name: Copy font files
+  become_user: "{{ username }}"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ home_dir }}/.local/share/fonts/{{ item | basename }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+  with_fileglob:
+    - fonts/*
+  tags: fonts, icons
+
+- name: Create local directory for wallpapers
+  become_user: "{{ username }}"
+  file:
+    path: "{{ home_dir }}/Pictures/Wal"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "744"
   tags: wallpaper
 
-- name: Link dotfiles
-  become: true
+- name: Copy wallpapers
+  become_user: "{{ username }}"
+  copy:
+    src: "{{ item }}"
+    dest: "{{ home_dir }}/Pictures/Wal/{{ item | basename }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+    force: true
+  with_fileglob:
+    - wallpapers/*
+  tags: wallpaper
+
+- name: Generate colorscheme files with pywall
+  become_user: "{{ username }}"
+  command: |
+    /usr/bin/wal -i "{{ home_dir }}/Pictures/Wal/bg1.jpg"
+  tags: pywal, colorschemes
+
+- name: Link dotfiles and colorschemes
   become_user: "{{ username }}"
   file:
     src: "{{ item.src }}"
@@ -105,11 +168,17 @@
   with_items:
     - { src: "{{ dotfiles_dir }}/xorg/xinitrc", dest: "{{ home_dir }}/.xinitrc" }
     - { src: "{{ dotfiles_dir }}/xorg/Xresources", dest: "{{ home_dir }}/.Xresources" }
-    - { src: "{{ dotfiles_dir }}/i3/config", dest: "{{ home_dir }}/.config/i3/config" }
+    - { src: "{{ dotfiles_dir }}/bspwm/bspwmrc", dest: "{{ home_dir }}/.config/bspwm/bspwmrc" }
+    - { src: "{{ dotfiles_dir }}/sxhkd/sxhkdrc", dest: "{{ home_dir }}/.config/sxhrkd/sxhkdrc" }
     - { src: "{{ dotfiles_dir }}/polybar/config", dest: "{{ home_dir }}/.config/polybar/config" }
     - { src: "{{ dotfiles_dir }}/polybar/launch.sh", dest: "{{ home_dir }}/.config/polybar/launch.sh" }
     - { src: "{{ dotfiles_dir }}/kitty/kitty.conf", dest: "{{ home_dir }}/.config/kitty/kitty.conf" }
-  tags: dotfiles
+    - { src: "{{ dotfiles_dir }}/picom/picom.conf", dest: "{{ home_dir }}/.config/picom/picom.conf" }
+    - { src: "{{ dotfiles_dir }}/ranger/rc.conf", dest: "{{ home_dir }}/.config/ranger/rc.conf" }
+    - { src: "{{ dotfiles_dir }}/neofetch/neofetch.conf", dest: "{{ home_dir }}/.config/neofetch/config.conf" }
+    - { src: "{{ dotfiles_dir }}/dunst/dunstrc", dest: "{{ home_dir }}/.config/dunst/dunstrc" }
+    - { src: "{{ home_dir }}/.cache/wal/colors.Xresources", "{{ home_dir }}/colors.Xresources" }
+  tags: dotfiles, colorschemes
 
 - name: Change +x permissions to launcher scripts
   file:

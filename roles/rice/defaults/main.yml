@@ -2,3 +2,8 @@
 
 aur_font_packages:
   - nerd-fonts-jetbrains-mono
+  - nerd-fonts-fira-code
+
+window_manager: bspwm
+window_manager_extras:
+  - sxhkd
