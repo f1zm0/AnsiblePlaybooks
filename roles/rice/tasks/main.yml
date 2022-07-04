@@ -100,11 +100,13 @@
     mode: "0755"
   with_items:
     - { path: "{{ home_dir }}/.config/{{ window_manager | default(window_manager) }}" }
+    - { path: "{{ home_dir }}/.config/sxhkd" }
     - { path: "{{ home_dir }}/.config/polybar" }
     - { path: "{{ home_dir }}/.config/kitty" }
     - { path: "{{ home_dir }}/.config/picom" }
     - { path: "{{ home_dir }}/.config/ranger" }
     - { path: "{{ home_dir }}/.config/neofetch" }
+    - { path: "{{ home_dir }}/.config/dunst" }
   tags: dotfiles
 
 - name: Create local directory for fonts
