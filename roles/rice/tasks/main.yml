@@ -180,7 +180,7 @@
     - { src: "{{ dotfiles_dir }}/xorg/xinitrc", dest: "{{ home_dir }}/.xinitrc" }
     - { src: "{{ dotfiles_dir }}/xorg/Xresources", dest: "{{ home_dir }}/.Xresources" }
     - { src: "{{ dotfiles_dir }}/bspwm/bspwmrc", dest: "{{ home_dir }}/.config/bspwm/bspwmrc" }
-    - { src: "{{ dotfiles_dir }}/sxhkd/sxhkdrc", dest: "{{ home_dir }}/.config/sxhrkd/sxhkdrc" }
+    - { src: "{{ dotfiles_dir }}/sxhkd/sxhkdrc", dest: "{{ home_dir }}/.config/sxhkd/sxhkdrc" }
     - { src: "{{ dotfiles_dir }}/polybar/config", dest: "{{ home_dir }}/.config/polybar/config" }
     - { src: "{{ dotfiles_dir }}/polybar/launch.sh", dest: "{{ home_dir }}/.config/polybar/launch.sh" }
     - { src: "{{ dotfiles_dir }}/kitty/kitty.conf", dest: "{{ home_dir }}/.config/kitty/kitty.conf" }
@@ -188,7 +188,7 @@
     - { src: "{{ dotfiles_dir }}/ranger/rc.conf", dest: "{{ home_dir }}/.config/ranger/rc.conf" }
     - { src: "{{ dotfiles_dir }}/neofetch/neofetch.conf", dest: "{{ home_dir }}/.config/neofetch/config.conf" }
     - { src: "{{ dotfiles_dir }}/dunst/dunstrc", dest: "{{ home_dir }}/.config/dunst/dunstrc" }
-    - { src: "{{ home_dir }}/.cache/wal/colors.Xresources", "{{ home_dir }}/colors.Xresources" }
+    - { src: "{{ home_dir }}/.cache/wal/colors.Xresources", dest: "{{ home_dir }}/colors.Xresources" }
   tags: dotfiles, colorschemes
 
 - name: Change +x permissions to launcher scripts
