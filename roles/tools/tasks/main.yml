@@ -1,7 +1,7 @@
 ---
 
 - name: Install networking tools 
-  become: true
+  become: yes
   pacman:
     name: "{{ package }}"
   with_items: "{{ networking_tools | default(networking_tools) }}"
@@ -10,7 +10,7 @@
     label: "{{ package }}"
 
 - name: Install security tools 
-  become: true
+  become: yes
   pacman:
     name: "{{ package }}"
   with_items: "{{ security_tools | default(security_tools) }}"

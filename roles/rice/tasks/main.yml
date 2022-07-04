@@ -60,6 +60,7 @@
   tags: notifications, dunst
 
 - name: Install picom compositor from AUR
+  become: yes
   become_user: "{{ username }}"
   command: "yay --noconfirm -S picom-git" 
   tags: picom, compositor 
@@ -74,6 +75,7 @@
   tags: file-browser, ranger
 
 - name: Install nerd fonts from AUR
+  become: yes
   become_user: "{{ username }}"
   command: "yay --noconfirm --needed -S {{ package }}"
   with_items: "{{ aur_font_packages | default(aur_font_packages) }}"
@@ -88,6 +90,7 @@
   tags: icons
 
 - name: Create config directories
+  become: yes
   become_user: "{{ username }}"
   file:
     path: "{{ item.path }}"
@@ -105,6 +108,7 @@
   tags: dotfiles
 
 - name: Create local directory for fonts
+  become: yes
   become_user: "{{ username }}"
   file:
     path: "{{ home_dir }}/.local/share/fonts"
@@ -115,6 +119,7 @@
   tags: fonts, icons
 
 - name: Copy font files
+  become: yes
   become_user: "{{ username }}"
   copy:
     src: "{{ item }}"
@@ -127,6 +132,7 @@
   tags: fonts, icons
 
 - name: Create local directory for wallpapers
+  become: yes
   become_user: "{{ username }}"
   file:
     path: "{{ home_dir }}/Pictures/Wal"
@@ -137,6 +143,7 @@
   tags: wallpaper
 
 - name: Copy wallpapers
+  become: yes
   become_user: "{{ username }}"
   copy:
     src: "{{ item }}"
@@ -150,12 +157,14 @@
   tags: wallpaper
 
 - name: Generate colorscheme files with pywall
+  become: yes
   become_user: "{{ username }}"
   command: |
     /usr/bin/wal -i "{{ home_dir }}/Pictures/Wal/bg1.jpg"
   tags: pywal, colorschemes
 
 - name: Link dotfiles and colorschemes
+  become: yes
   become_user: "{{ username }}"
   file:
     src: "{{ item.src }}"

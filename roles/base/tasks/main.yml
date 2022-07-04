@@ -7,7 +7,7 @@
   tags: sudoers
 
 - name: Install core packages from arch repos
-  become: true
+  become: yes
   pacman:
     name: "{{ package }}"
     state: present
@@ -30,7 +30,7 @@
   tags: yay
 
 - name: Download yay to manage AUR packages
-  become: true
+  become: yes
   when: not yaybin.stat.exists
   git:
     repo: https://aur.archlinux.org/yay.git
@@ -42,6 +42,7 @@
   tags: yay
 
 - name: "Build yay"
+  become: yes
   become_user: "{{ username }}"
   when: not yaybin.stat.exists
   command: makepkg --noconfirm -si
@@ -64,6 +65,7 @@
   tags: virtualbox
 
 - name: Clone dotfiles repo
+  become: yes
   become_user: "{{ username }}"
   git:
     repo: "{{ dotfiles_repo_url }}"
@@ -73,6 +75,7 @@
   tags: dotfiles
 
 - name: Create directories for config files
+  become: yes
   become_user: "{{ username }}"
   file:
     path: "{{ item.path }}"
@@ -90,12 +93,13 @@
     name: zsh
 
 - name: set zsh as default shell for {{ username }}
-  become: true
+  become: yes
   user:
     name: "{{ username }}"
     shell: /usr/bin/zsh
 
 - name: install oh-my-zsh
+  become: yes
   become_user: "{{ username }}"
   git:
     repo: "https://github.com/robbyrussell/oh-my-zsh"
@@ -105,6 +109,7 @@
   tags: zsh, omz, oh-my-zsh
 
 - name: install plugins
+  become: yes
   become_user: "{{ username }}"
   git:
     repo: "{{ plugin.repo }}"
@@ -117,6 +122,7 @@
   tags: zsh, omz, oh-my-zsh
 
 - name: Install Powerlevel10k theme
+  become: yes
   become_user: "{{ username }}"
   git:
     repo: https://github.com/romkatv/powerlevel10k
@@ -133,12 +139,14 @@
   tags: neovim
 
 - name: Install Plug to manage neovim packages
+  become: yes
   become_user: "{{ username }}"
   shell: |
     sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
   tags: neovim
 
 - name: Install neovim packages
+  become: yes
   become_user: "{{ username }}"
   command: |
     "nvim --headless -E -s -c 'source {{ home_dir }}/.config/nvim/init.vim' +PlugInstall +qa"
