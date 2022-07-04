@@ -21,7 +21,8 @@
   pacman:
     name: "{{ item }}"
     state: present
-  with_items: "{{ window_manager_extras | default(window_manager_extras) }}"
+  with_items: 
+    - "{{ window_manager_extras | default(window_manager_extras) }}"
   when: window_manager_extras  != "" or default(window_manager) != ""
   tags: window-manager, wm
 
@@ -89,25 +90,74 @@
     state: present
   tags: icons
 
-- name: Create config directories
+- name: Clone dotfiles repo
+  become: yes
+  become_user: "{{ username }}"
+  git:
+    repo: "{{ dotfiles_repo_url }}"
+    version: "{{ dotfiles_repo_branch }}"
+    dest: "{{ dotfiles_dir }}"
+    force: yes
+  tags: dotfiles
+
+- name: Create config directory
   become: yes
   become_user: "{{ username }}"
   file:
-    path: "{{ item.path }}"
+    path: "{{ home_dir }}/.config"
     state: directory
     owner: "{{ username }}"
     group: "{{ username }}"
-    mode: "0755"
-  with_items:
-    - { path: "{{ home_dir }}/.config/{{ window_manager | default(window_manager) }}" }
-    - { path: "{{ home_dir }}/.config/sxhkd" }
-    - { path: "{{ home_dir }}/.config/polybar" }
-    - { path: "{{ home_dir }}/.config/kitty" }
-    - { path: "{{ home_dir }}/.config/picom" }
-    - { path: "{{ home_dir }}/.config/ranger" }
-    - { path: "{{ home_dir }}/.config/neofetch" }
-    - { path: "{{ home_dir }}/.config/dunst" }
+    mode: "0744"
   tags: dotfiles
+
+- name: Move window manager config to .config directory
+  become: yes
+  become_user: "{{ username }}"
+  copy:
+    src: "{{ dotfiles_dir }}/{{ window_manager | default(window_manager) }}"
+    dest: "{{ home_dir }}/.config/"
+    force: yes
+  tags: dotfiles
+
+- name: Move window manager extra packages config to .config directory
+  become: yes
+  become_user: "{{ username }}"
+  copy:
+    src: "{{ dotfiles_dir }}/{{ item }}"
+    dest: "{{ home_dir }}/.config/"
+    force: yes
+  with_items: "{{ window_manager | default(window_manager) }}"
+  tags: dotfiles
+
+- name: Move other dotfiles directories
+  become: yes
+  become_user: "{{ username }}"
+  copy: 
+    src: "{{ dotfiles_dir }}/{{ item }}"
+    dest: "{{ home_dir }}/.config/"
+    force: yes
+  with_items:
+    - aliases
+    - dunst
+    - kitty
+    - nvim
+    - polybar
+    - ranger
+    - sxhkd
+    - tmux
+    - xorg
+    - zsh
+  tags: dotfiles
+
+- name: Set +x bit to launcher scripts
+  file:
+    dest: "{{ item }}"
+    mode: a+x
+  with_items:
+    - "{{ home_dir }}/.config/bspwm/bspwmrc"
+    - "{{ home_dir }}/.config/polybar/launch.sh"
+  tags: dotfiles, bspwm, polybar
 
 - name: Create local directory for fonts
   become: yes
@@ -142,7 +192,7 @@
     owner: "{{ username }}"
     group: "{{ username }}"
     mode: "744"
-  tags: wallpaper
+  tags: wallpapers
 
 - name: Copy wallpapers
   become: yes
@@ -156,7 +206,7 @@
     force: true
   with_fileglob:
     - wallpapers/*
-  tags: wallpaper
+  tags: wallpapers
 
 - name: Generate colorscheme files with pywall
   become: yes
@@ -177,23 +227,5 @@
     force: yes
     state: link
   with_items:
-    - { src: "{{ dotfiles_dir }}/xorg/xinitrc", dest: "{{ home_dir }}/.xinitrc" }
-    - { src: "{{ dotfiles_dir }}/xorg/Xresources", dest: "{{ home_dir }}/.Xresources" }
-    - { src: "{{ dotfiles_dir }}/bspwm/bspwmrc", dest: "{{ home_dir }}/.config/bspwm/bspwmrc" }
-    - { src: "{{ dotfiles_dir }}/sxhkd/sxhkdrc", dest: "{{ home_dir }}/.config/sxhkd/sxhkdrc" }
-    - { src: "{{ dotfiles_dir }}/polybar/config", dest: "{{ home_dir }}/.config/polybar/config" }
-    - { src: "{{ dotfiles_dir }}/polybar/launch.sh", dest: "{{ home_dir }}/.config/polybar/launch.sh" }
-    - { src: "{{ dotfiles_dir }}/kitty/kitty.conf", dest: "{{ home_dir }}/.config/kitty/kitty.conf" }
-    - { src: "{{ dotfiles_dir }}/picom/picom.conf", dest: "{{ home_dir }}/.config/picom/picom.conf" }
-    - { src: "{{ dotfiles_dir }}/ranger/rc.conf", dest: "{{ home_dir }}/.config/ranger/rc.conf" }
-    - { src: "{{ dotfiles_dir }}/neofetch/neofetch.conf", dest: "{{ home_dir }}/.config/neofetch/config.conf" }
-    - { src: "{{ dotfiles_dir }}/dunst/dunstrc", dest: "{{ home_dir }}/.config/dunst/dunstrc" }
     - { src: "{{ home_dir }}/.cache/wal/colors.Xresources", dest: "{{ home_dir }}/colors.Xresources" }
-  tags: dotfiles, colorschemes
-
-- name: Change +x permissions to launcher scripts
-  file:
-    dest: "{{ home_dir }}/.config/polybar/launch.sh"
-    mode: a+x
-  tags: dotfiles, polybar
-
+  tags: dotfiles, pywal, colorschemes
