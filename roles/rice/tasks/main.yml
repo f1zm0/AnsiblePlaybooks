@@ -90,7 +90,7 @@
     state: present
   tags: icons
 
-- name: Clone dotfiles repo
+- name: "Clone dotfiles {{ dotfiles_repo_branch }} branch"
   become: yes
   become_user: "{{ username }}"
   git:
@@ -142,6 +142,7 @@
     - dunst
     - kitty
     - nvim
+    - picom
     - polybar
     - ranger
     - sxhkd
