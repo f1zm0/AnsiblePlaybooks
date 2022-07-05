@@ -15,6 +15,7 @@ core_packages:
   - fd
   - ripgrep
   - fzf
+  - xclip
 
 ohmyzsh_default_theme: robbyrussell
 ohmyzsh_default_plugins:

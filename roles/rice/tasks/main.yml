@@ -145,6 +145,7 @@
     - picom
     - polybar
     - ranger
+    - rofi
     - sxhkd
     - tmux
     - xorg
