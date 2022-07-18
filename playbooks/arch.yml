@@ -1,5 +1,4 @@
 ---
-
 - hosts: localhost
   connection: local
   gather_facts: false
@@ -16,4 +15,3 @@
     - base
     - tools
     - rice
-

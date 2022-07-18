@@ -1,0 +1,5 @@
+---
+- name: Install icon theme
+  community.general.pacman:
+    name: papirus-icon-theme
+    state: present

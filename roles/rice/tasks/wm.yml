@@ -1,0 +1,41 @@
+---
+- name: Install window manager
+  become: true
+  community.general.pacman:
+    name: "{{ window_manager | default(window_manager) }}"
+    state: present
+
+- name: Install extra packages for window manager
+  become: true
+  become_user: "{{ username }}"
+  when: window_manager_extras != "" or default(window_manager) != ""
+  with_items:
+    - "{{ window_manager_extras | default(window_manager_extras) }}"
+  community.general.pacman:
+    name: "{{ item }}"
+    state: present
+
+- name: Move window manager config to .config directory
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.copy:
+    src: "{{ dotfiles_dir }}/{{ window_manager | default(window_manager) }}"
+    dest: "{{ home_dir }}/.config/"
+    force: true
+
+- name: Move window manager extra packages config to .config directory
+  become: true
+  become_user: "{{ username }}"
+  with_items: "{{ window_manager_extras | default(window_manager_extras) }}"
+  ansible.builtin.copy:
+    src: "{{ dotfiles_dir }}/{{ item }}"
+    dest: "{{ home_dir }}/.config/"
+    force: true
+
+- name: Set +x bit to launcher scripts
+  become: true
+  become_user: "{{ username }}"
+  when: window_manager == "bspwm" || default(window_manager) == "bspwm"
+  ansible.builtin.file:
+    dest: "{{ home_dir }}/.config/bspwm/bspwmrc"
+    mode: a+x

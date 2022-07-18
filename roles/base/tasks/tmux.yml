@@ -1,0 +1,18 @@
+---
+- name: Install tmux
+  become: true
+  community.general.pacman:
+    name: tmux
+    state: present
+
+- name: Link tmux config from dotfiles
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/tmux/tmux.conf"
+    dest: "{{ home_dir }}/.tmux.conf"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+    force: true
+    state: link

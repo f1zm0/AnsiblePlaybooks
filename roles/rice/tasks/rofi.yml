@@ -1,0 +1,31 @@
+---
+- name: Install app launcher
+  become: true
+  community.general.pacman:
+    name: rofi
+    state: present
+
+- name: Ensure that config directory exists
+  ansible.builtin.stat:
+    path: "{{ home_dir }}/.config"
+  register: configdir
+
+- name: Create config directory
+  become: true
+  become_user: "{{ username }}"
+  when: not configdir.stat.exists
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.config"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0744"
+
+- name: Move config and scripts to .config
+  become: true
+  become_user: "{{ username }}"
+  when: configdir.stat.exists
+  ansible.builtin.copy:
+    src: "{{ dotfiles_dir }}/rofi"
+    dest: "{{ home_dir }}/.config/"
+    force: true

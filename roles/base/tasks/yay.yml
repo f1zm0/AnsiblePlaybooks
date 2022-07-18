@@ -1,0 +1,46 @@
+---
+- name: Check if yay is already installed
+  ansible.builtin.stat:
+    path: /usr/bin/yay
+  register: yaybin
+
+- name: Report if yay ins already installed
+  when: yaybin.stat.exists
+  ansible.builtin.debug:
+    msg: "/opt/yay already exists"
+
+- name: Install the packages needed to build AUR packages
+  become: true
+  when: not yaybin.stat.exists
+  community.general.pacman:
+    state: present
+    name:
+      - fakeroot
+      - gnupg
+      - git
+
+- name: Download yay to manage AUR packages
+  become: true
+  when: not yaybin.stat.exists
+  ansible.builtin.git:
+    repo: https://aur.archlinux.org/yay.git
+    dest: /opt/yay
+    version: master
+
+- name: Grant the user permissions to yay dir
+  become: true
+  ansible.builtin.file:
+    dest: /opy/yay
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    recurse: true
+    mode: 0644
+
+- name: Build yay
+  become: true
+  become_user: "{{ username }}"
+  when: not yaybin.stat.exists
+  ansible.builtin.command:
+    cmd: makepkg --noconfirm -si
+  args:
+    chdir: /opt/yay

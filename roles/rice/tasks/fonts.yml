@@ -1,0 +1,30 @@
+---
+- name: Create local directory for fonts
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.local/share/fonts"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0744"
+
+- name: Copy font files
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ home_dir }}/.local/share/fonts/{{ item | basename }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+  with_fileglob:
+    - fonts/*
+
+- name: Install nerd fonts from AUR
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.command: "yay --noconfirm --needed -S {{ package }}"
+  with_items: "{{ aur_font_packages | default(aur_font_packages) }}"
+  loop_control:
+    loop_var: package

@@ -1,0 +1,25 @@
+---
+- name: Create local directory for wallpapers
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.file:
+    path: "{{ home_dir }}/Pictures/Wal"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "744"
+  tags: wallpapers
+
+- name: Copy wallpapers
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.copy:
+    src: "{{ item }}"
+    dest: "{{ home_dir }}/Pictures/Wal/{{ item | basename }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+    force: true
+  with_fileglob:
+    - wallpapers/*
+  tags: wallpapers

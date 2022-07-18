@@ -1,0 +1,14 @@
+---
+- name: install notification daemon
+  community.general.pacman:
+    name: dunst
+    state: present
+  tags: notifications, dunst
+
+- name: Copy config and scripts to .config folder
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.copy:
+    src: "{{ dotfiles_dir }}/dunst"
+    dest: "{{ home_dir }}/.config/"
+    force: true

@@ -1,0 +1,23 @@
+---
+- name: Enable VirtualBox service
+  ansible.builtin.systemd:
+    name: vboxservice.service
+    enabled: true
+  tags: virtualbox
+
+- name: Restart virtualbox service
+  ansible.builtin.systemd:
+    name: vboxservice.service
+    enabled: true
+  when: is_virtualbox_installation
+  tags: virtualbox
+
+- name: Create dotconfig directory
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.config"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: 0744

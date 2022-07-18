@@ -1,0 +1,23 @@
+---
+- name: Install X packages
+  community.general.pacman:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - xorg
+    - xorg-xinit
+
+- name: Link config files
+  become: true
+  become_user: "{{ username }}"
+  with_items:
+    - xinitrc
+    - XResources
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/xorg/{{ item }}"
+    dest: "{{ home_dir }}/.{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+    force: true
+    state: link

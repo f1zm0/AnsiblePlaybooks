@@ -1,0 +1,16 @@
+---
+- name: Install ranger file browser
+  with_items:
+    - ranger
+    - ueberzug
+  community.general.pacman:
+    name: "{{ item }}"
+    state: present
+
+- name: Copy config and scripts to .config folder
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.copy:
+    src: "{{ dotfiles_dir }}/rofi"
+    dest: "{{ home_dir }}/.config/"
+    force: true

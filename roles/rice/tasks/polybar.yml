@@ -1,0 +1,18 @@
+---
+- name: Install polybar
+  community.general.pacman:
+    name: polybar
+    state: present
+
+- name: Copy config and scripts to .config folder
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.copy:
+    src: "{{ dotfiles_dir }}/polybar"
+    dest: "{{ home_dir }}/.config/"
+    force: true
+
+- name: Set +x bit to launcher script
+  ansible.builtin.file:
+    dest: "{{ home_dir }}/.config/polybar/launch.sh"
+    mode: a+x

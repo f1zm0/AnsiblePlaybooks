@@ -1,0 +1,15 @@
+---
+- name: Install picom compositor from AUR
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.command: "yay --noconfirm -S picom-git"
+  tags: picom, compositor
+
+- name: Copy config and scripts to .config folder
+  become: true
+  become_user: "{{ username }}"
+  when: configdir.stat.exists
+  ansible.builtin.copy:
+    src: "{{ dotfiles_dir }}/picom"
+    dest: "{{ home_dir }}/.config/"
+    force: true

@@ -1,0 +1,9 @@
+---
+- name: Install VirtualBox guest utils package
+  become: true
+  community.general.pacman:
+    name: virtualbox-guest-utils
+    state: present
+  notify:
+    - Enable virtualbox service
+    - Restart virtualbox service

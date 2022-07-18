@@ -1,233 +1,47 @@
 ---
+- name: Clone dotfiles
+  ansible.builtin.import_tasks: dotfiles.yml
+  tags: dotfiles
 
-- name: Install X packages
-  pacman:
-    name: "{{ item }}"
-    state: present
-  with_items: 
-    - xorg
-    - xorg-xinit
-  tags: xorg
+- name: Download wallpapers
+  ansible.builtin.import_tasks: wallpapers.yml
+  tags: wallpapers
 
-- name: Install window manager
-  vars: 
-    - wm: "{{ window_manager | default(window_manager) }}"
-  pacman:
-    name : "{{ wm }}"
-    state: present
-  tags: window-manager, wm
+- name: Generate colorschemes
+  ansible.builtin.import_tasks: pywal.yml
+  tags: colorschemes, pywal
 
-- name: Install extra packages for window manager
-  pacman:
-    name: "{{ item }}"
-    state: present
-  with_items: 
-    - "{{ window_manager_extras | default(window_manager_extras) }}"
-  when: window_manager_extras  != "" or default(window_manager) != ""
-  tags: window-manager, wm
+- name: Setup XOrg
+  ansible.builtin.import_tasks: xorg.yml
+  tags: xorg, x-window
 
-- name: Install terminal emulator
-  pacman:
-    name: kitty
-    state: present
-  tags: terminal
+- name: Setup window manager
+  ansible.builtin.import_tasks: wm.yml
+  tags: wm, window-manager
 
-- name: Install pywal
-  pacman:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - python-pywal
-    - feh
-    - imagemagick
-  tags: terminal, colorschemes
-
-- name: Install status bar
-  pacman:
-    name: polybar
-    state: present
-  tags: polybar, status-bar
-
-- name: Install app launcher
-  pacman:
-    name: rofi
-    state: present
-  tags: rofi, launcher
-
-- name: install notification daemon
-  pacman:
-    name: dunst
-    state: present
-  tags: notifications, dunst
-
-- name: Install picom compositor from AUR
-  become: yes
-  become_user: "{{ username }}"
-  command: "yay --noconfirm -S picom-git" 
-  tags: picom, compositor 
-
-- name: Install ranger file browser
-  pacman:
-    name: "{{ item }}"
-    state: present
-  with_items:
-    - ranger
-    - ueberzug
-  tags: file-browser, ranger
-
-- name: Install nerd fonts from AUR
-  become: yes
-  become_user: "{{ username }}"
-  command: "yay --noconfirm --needed -S {{ package }}"
-  with_items: "{{ aur_font_packages | default(aur_font_packages) }}"
-  loop_control:
-    loop_var: package
+- name: Install fonts and icons
+  ansible.builtin.import_tasks: fonts.yml
   tags: fonts, nerd-fonts
 
-- name: Install icon theme
-  pacman:
-    name: papirus-icon-theme
-    state: present
-  tags: icons
+- name: Setup terminal emulator
+  ansible.builtin.import_tasks: termemu.yml
+  tags: terminal, terminal-emulator
+- name: Install status bar
+  ansible.builtin.import_tasks: polybar.yml
+  tags: status-bar
 
-- name: "Clone dotfiles {{ dotfiles_repo_branch }} branch"
-  become: yes
-  become_user: "{{ username }}"
-  git:
-    repo: "{{ dotfiles_repo_url }}"
-    version: "{{ dotfiles_repo_branch }}"
-    dest: "{{ dotfiles_dir }}"
-    force: yes
-  tags: dotfiles
+- name: Setup application launcher
+  ansible.builtin.import_tasks: rofi.yml
+  tags: app-launcher, launcher
 
-- name: Create config directory
-  become: yes
-  become_user: "{{ username }}"
-  file:
-    path: "{{ home_dir }}/.config"
-    state: directory
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    mode: "0744"
-  tags: dotfiles
+- name: Setup compositor
+  ansible.builtin.import_tasks: picom.yml
+  tags: compositor
 
-- name: Move window manager config to .config directory
-  become: yes
-  become_user: "{{ username }}"
-  copy:
-    src: "{{ dotfiles_dir }}/{{ window_manager | default(window_manager) }}"
-    dest: "{{ home_dir }}/.config/"
-    force: yes
-  tags: dotfiles
+- name: Setup notification daemon
+  ansible.builtin.import_tasks: dunst.yml
+  tags: notifications
 
-- name: Move window manager extra packages config to .config directory
-  become: yes
-  become_user: "{{ username }}"
-  copy:
-    src: "{{ dotfiles_dir }}/{{ item }}"
-    dest: "{{ home_dir }}/.config/"
-    force: yes
-  with_items: "{{ window_manager | default(window_manager) }}"
-  tags: dotfiles
-
-- name: Move other dotfiles directories
-  become: yes
-  become_user: "{{ username }}"
-  copy: 
-    src: "{{ dotfiles_dir }}/{{ item }}"
-    dest: "{{ home_dir }}/.config/"
-    force: yes
-  with_items:
-    - aliases
-    - dunst
-    - kitty
-    - nvim
-    - picom
-    - polybar
-    - ranger
-    - rofi
-    - sxhkd
-    - tmux
-    - xorg
-    - zsh
-  tags: dotfiles
-
-- name: Set +x bit to launcher scripts
-  file:
-    dest: "{{ item }}"
-    mode: a+x
-  with_items:
-    - "{{ home_dir }}/.config/bspwm/bspwmrc"
-    - "{{ home_dir }}/.config/polybar/launch.sh"
-  tags: dotfiles, bspwm, polybar
-
-- name: Create local directory for fonts
-  become: yes
-  become_user: "{{ username }}"
-  file:
-    path: "{{ home_dir }}/.local/share/fonts"
-    state: directory
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    mode: "0744"
-  tags: fonts, icons
-
-- name: Copy font files
-  become: yes
-  become_user: "{{ username }}"
-  copy:
-    src: "{{ item }}"
-    dest: "{{ home_dir }}/.local/share/fonts/{{ item | basename }}"
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    mode: "0644"
-  with_fileglob:
-    - fonts/*
-  tags: fonts, icons
-
-- name: Create local directory for wallpapers
-  become: yes
-  become_user: "{{ username }}"
-  file:
-    path: "{{ home_dir }}/Pictures/Wal"
-    state: directory
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    mode: "744"
-  tags: wallpapers
-
-- name: Copy wallpapers
-  become: yes
-  become_user: "{{ username }}"
-  copy:
-    src: "{{ item }}"
-    dest: "{{ home_dir }}/Pictures/Wal/{{ item | basename }}"
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    mode: "0644"
-    force: true
-  with_fileglob:
-    - wallpapers/*
-  tags: wallpapers
-
-- name: Generate colorscheme files with pywall
-  become: yes
-  become_user: "{{ username }}"
-  command: |
-    /usr/bin/wal -i "{{ home_dir }}/Pictures/Wal/bg1.jpg"
-  tags: pywal, colorschemes
-
-- name: Link dotfiles and colorschemes
-  become: yes
-  become_user: "{{ username }}"
-  file:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
-    owner: "{{ username }}"
-    group: "{{ username }}"
-    mode: "0644"
-    force: yes
-    state: link
-  with_items:
-    - { src: "{{ home_dir }}/.cache/wal/colors.Xresources", dest: "{{ home_dir }}/colors.Xresources" }
-  tags: dotfiles, pywal, colorschemes
+- name: Setup neovim
+  ansible.builtin.import_tasks: neovim.yml
+  tags: neovim

@@ -1,5 +1,4 @@
 ---
-
 networking_tools:
   - net-tools
   - tcpdump
@@ -8,5 +7,3 @@ networking_tools:
 security_tools:
   - nmap
   - termshark
-
-

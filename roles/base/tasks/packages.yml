@@ -1,18 +1,20 @@
 ---
-- name: Install networking tools
+- name: Install core packages from arch repos
   become: true
   community.general.pacman:
     name: "{{ package }}"
-  with_items: "{{ networking_tools | default(networking_tools) }}"
+    state: present
+  with_items: "{{ core_packages | default(core_packages) }}"
   loop_control:
     loop_var: package
     label: "{{ package }}"
 
-- name: Install security tools
+- name: Install util packages from arch repos
   become: true
   community.general.pacman:
     name: "{{ package }}"
-  with_items: "{{ security_tools | default(security_tools) }}"
+    state: present
+  with_items: "{{ util_packages | default(util_packages) }}"
   loop_control:
     loop_var: package
     label: "{{ package }}"

@@ -1,0 +1,13 @@
+---
+- name: Install neovim
+  become: true
+  community.general.pacman:
+    name: neovim
+    state: present
+
+- name: Install Plug to manage neovim packages
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.shell: |
+    "sh -c 'curl -fLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim \
+    --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'"

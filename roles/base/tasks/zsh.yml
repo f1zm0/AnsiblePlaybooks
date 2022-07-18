@@ -1,0 +1,66 @@
+---
+- name: Install zsh
+  become: true
+  community.general.pacman:
+    name: zsh
+    state: present
+
+- name: Set zsh as default shell for {{ username }}
+  become: true
+  ansible.builtin.user:
+    name: "{{ username }}"
+    shell: /usr/bin/zsh
+
+- name: Install starship
+  become: true
+  community.general.pacman:
+    name: starship
+    state: present
+
+- name: Create plugins directory
+  become: true
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.zsh/plugins"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0744"
+
+- name: Install plugins
+  become: true
+  become_user: "{{ username }}"
+  with_items: "{{ zsh_plugins }}"
+  loop_control:
+    loop_var: plugin
+  ansible.builtin.git:
+    repo: "{{ plugin.repo }}"
+    dest: "{{ home_dir }}/.zsh/plugins/{{ plugin.name }}"
+    version: "{{ plugin.version | default(omit) }}"
+    update: "{{ plugin.update | default(omit) | bool }}"
+
+- name: Link zshrc and zshenv config files
+  become: true
+  become_user: "{{ username }}"
+  with_items:
+    - zshrc
+    - zshenv
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/zsh/{{ item }}"
+    dest: "{{ home_dir }}/.{{ item }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+    force: true
+    state: link
+
+- name: Link shell aliases and functions
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.file:
+    src: "{{ dotfiles_dir }}/aliases/aliases.sh"
+    dest: "{{ home_dir }}/.aliases"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+    force: true
+    state: link

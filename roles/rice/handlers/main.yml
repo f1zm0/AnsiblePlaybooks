@@ -1,0 +1,11 @@
+---
+- name: Create dotconfig directory
+  become: true
+  become_user: "{{ username }}"
+  when: not configdir.stat.exists
+  ansible.builtin.file:
+    path: "{{ home_dir }}/.config"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: 0744

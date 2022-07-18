@@ -1,0 +1,34 @@
+---
+- name: Install utils packages
+  community.general.pacman:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - feh
+    - imagemagick
+
+- name: Install pywal
+  community.general.pacman:
+    name: python-pywal
+    state: present
+
+- name: Generate colorscheme files with pywall
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.command: |
+    /usr/bin/wal -i "{{ home_dir }}/Pictures/Wal/bg1.jpg"
+
+- name: Add generated colors to XResources
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.file:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0644"
+    force: true
+    state: link
+  with_items:
+    - src: "{{ home_dir }}/.cache/wal/colors.Xresources"
+      dest: "{{ home_dir }}/colors.Xresources"
