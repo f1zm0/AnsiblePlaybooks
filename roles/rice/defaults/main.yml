@@ -3,6 +3,7 @@
 aur_font_packages:
   - nerd-fonts-jetbrains-mono
   - nerd-fonts-fira-code
+  - ttf-joypixels
 
 window_manager: bspwm
 window_manager_extras:
