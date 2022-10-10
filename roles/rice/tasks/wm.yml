@@ -7,7 +7,6 @@
 
 - name: Install extra packages for window manager
   become: true
-  become_user: "{{ username }}"
   when: window_manager_extras != "" or default(window_manager) != ""
   with_items:
     - "{{ window_manager_extras | default(window_manager_extras) }}"
