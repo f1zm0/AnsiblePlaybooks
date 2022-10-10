@@ -17,7 +17,7 @@ util_packages:
   - fzf
   - xclip
 
-zsh_custom_plugins:
+zsh_plugins:
   - name: zsh-syntax-highlighting
     repo: https://github.com/zsh-users/zsh-syntax-highlighting.git
     update: false

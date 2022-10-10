@@ -15,7 +15,7 @@
   ansible.builtin.import_tasks: yay.yml
   tags: yay, aur
 
-- name: Setup virtulabox
+- name: Setup virtualbox
   ansible.builtin.import_tasks: vbox.yml
   when: is_virtualbox_installation
   tags: virtualbox
