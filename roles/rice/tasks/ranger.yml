@@ -11,6 +11,6 @@
   become: true
   become_user: "{{ username }}"
   ansible.builtin.copy:
-    src: "{{ dotfiles_dir }}/rofi"
+    src: "{{ dotfiles_dir }}/ranger"
     dest: "{{ home_dir }}/.config/"
     force: true
