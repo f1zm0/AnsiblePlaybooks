@@ -35,7 +35,7 @@
 - name: Set +x bit to launcher scripts
   become: true
   become_user: "{{ username }}"
-  when: window_manager == "bspwm" || default(window_manager) == "bspwm"
+  when: window_manager == "bspwm" | default(window_manager) == "bspwm"
   ansible.builtin.file:
     dest: "{{ home_dir }}/.config/bspwm/bspwmrc"
     mode: a+x

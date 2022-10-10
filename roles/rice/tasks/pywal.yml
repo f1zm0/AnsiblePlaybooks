@@ -12,11 +12,17 @@
     name: python-pywal
     state: present
 
+- name: Install colorz backend
+  become: true
+  become_user: "{{ username }}"
+  ansible.builtin.pip:
+    name: colorz
+
 - name: Generate colorscheme files with pywall
   become: true
   become_user: "{{ username }}"
   ansible.builtin.command: |
-    /usr/bin/wal -i "{{ home_dir }}/Pictures/Wal/bg1.jpg"
+    wal --backend colorz -i "{{ home_dir }}/Pictures/Wal/bg1.jpg"
 
 - name: Add generated colors to XResources
   become: true
