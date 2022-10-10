@@ -10,7 +10,7 @@ help:
 .PHONY: lint
 ## lint: run ansible-lint
 lint:
-	@ansible-lint playbooks/arch.yml
+	@yamllint . && ansible-lint playbooks/arch.yml
 
 .PHONY: run
 ## run: run playbooks
