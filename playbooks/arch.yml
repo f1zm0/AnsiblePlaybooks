@@ -8,7 +8,7 @@
     home_dir: "/home/{{ username }}"
     dotfiles_dir: "{{ home_dir}}/dotfiles"
     dotfiles_repo_url: https://github.com/f1zm0/dotfiles
-    dotfiles_repo_branch: dev
+    dotfiles_repo_branch: main
     is_virtualbox_installation: true
 
   roles:
