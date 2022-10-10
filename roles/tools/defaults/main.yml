@@ -7,3 +7,8 @@ networking_tools:
 security_tools:
   - nmap
   - termshark
+  - proxychains
+  - freerdp
+
+aur_tools:
+  - burpsuite
