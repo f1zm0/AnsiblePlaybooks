@@ -41,7 +41,3 @@
 - name: Setup notification daemon
   ansible.builtin.import_tasks: dunst.yml
   tags: notifications
-
-- name: Setup neovim
-  ansible.builtin.import_tasks: neovim.yml
-  tags: neovim
