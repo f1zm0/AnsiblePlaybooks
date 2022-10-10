@@ -1,5 +1,5 @@
 ---
-- name: "Clone dotfiles {{ dotfiles_repo_branch }} branch"
+- name: Clone dotfiles repository
   become: true
   become_user: "{{ username }}"
   ansible.builtin.git:
