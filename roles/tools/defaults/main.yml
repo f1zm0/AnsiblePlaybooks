@@ -3,6 +3,7 @@ networking_tools:
   - net-tools
   - tcpdump
   - ufw
+  - dnsutils
 
 security_tools:
   - nmap
