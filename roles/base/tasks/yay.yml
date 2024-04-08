@@ -26,7 +26,7 @@
   ansible.builtin.file:
     path: /opt/yay
     state: directory
-    user: "{{ username }}"
+    owner: "{{ username }}"
     group: "{{ username }}"
     mode: 0755
 
